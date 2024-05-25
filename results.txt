@@ -1,0 +1,39 @@
+-------------------------------------------------
+Migliori parametri per Decision Tree Classifier:
+  Criterion: gini
+  Max Depth: 20
+  Min Samples Split: 20
+  Min Samples Leaf: 20
+
+Migliori parametri per Random Forest Classifier:
+  Criterion: gini
+  N Estimators: 200
+  Max Depth: 20
+  Min Samples Split: 5
+  Min Samples Leaf: 2
+
+Migliori parametri per Logistic Regression:
+  Penalty: l2
+  C: 10
+  Solver: sag
+-------------------------------------------------
+Random Forest Classifier:
+  Accuracy: 0.7480
+  F1 Score: 0.7358
+  Precision: 0.7309
+  Recall: 0.7480
+  Balanced Accuracy: 0.6619
+-------------------------------------------------
+Random Forest Classifier:
+  Accuracy: 0.7774
+  F1 Score: 0.7610
+  Precision: 0.7651
+  Recall: 0.7774
+  Balanced Accuracy: 0.6846
+-------------------------------------------------
+Logistic Regression:
+  Accuracy: 0.7582
+  F1 Score: 0.7426
+  Precision: 0.7392
+  Recall: 0.7582
+  Balanced Accuracy: 0.6643
