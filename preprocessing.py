@@ -1,5 +1,5 @@
 
-def preprocessing(data):
+def initial_preprocessing(data):
     # Visualizzazione delle prime righe del dataset
     # print(data.head())
 
@@ -32,3 +32,29 @@ def preprocessing(data):
 
     # Visualizza solo i nomi delle colonne
     # print(data.columns)
+
+def show_feature_correlation(data):
+    print(data.corr()['Target'].sort_values(ascending=False))
+
+def drop_colums_with_low_correlation(data):
+    data.drop(columns=['Nationality', 
+                        'Mother qualification', 
+                        'Father qualification', 
+                        'Educational special needs', 
+                        'International', 
+                        'Curricular units 1st sem (without evaluations)',
+                        'Unemployment rate', 
+                        'Inflation rate'], axis=1, inplace=True)
+
+def drop_colums_after_kb_feature_engineering(data):
+    data.drop(columns=['Curricular units 1st sem (approved)', 
+                        'Curricular units 2nd sem (approved)',
+                        'Curricular units 1st sem (grade)', 
+                        'Curricular units 2nd sem (grade)',
+                        'Debtor',
+                        'Tuition fees up to date',
+                        ], axis=1, inplace=True)
+    
+def after_kb_feature_engineering_preprocessing(data):
+    drop_colums_with_low_correlation(data)
+    drop_colums_after_kb_feature_engineering(data)

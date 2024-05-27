@@ -1,15 +1,15 @@
 -------------------------------------------------
 Migliori parametri per Decision Tree Classifier:
   Criterion: gini
-  Max Depth: 20
-  Min Samples Split: 20
+  Max Depth: 40
+  Min Samples Split: 10
   Min Samples Leaf: 20
 
 Migliori parametri per Random Forest Classifier:
   Criterion: gini
-  N Estimators: 200
+  N Estimators: 100
   Max Depth: 20
-  Min Samples Split: 5
+  Min Samples Split: 2
   Min Samples Leaf: 2
 
 Migliori parametri per Logistic Regression:
@@ -25,11 +25,11 @@ Random Forest Classifier:
   Balanced Accuracy: 0.6619
 -------------------------------------------------
 Random Forest Classifier:
-  Accuracy: 0.7774
-  F1 Score: 0.7610
-  Precision: 0.7651
-  Recall: 0.7774
-  Balanced Accuracy: 0.6846
+  Accuracy: 0.7661
+  F1 Score: 0.7510
+  Precision: 0.7503
+  Recall: 0.7661
+  Balanced Accuracy: 0.6723
 -------------------------------------------------
 Logistic Regression:
   Accuracy: 0.7582
@@ -37,3 +37,48 @@ Logistic Regression:
   Precision: 0.7392
   Recall: 0.7582
   Balanced Accuracy: 0.6643
+-------------------------------------------------
+CICLO COMPLETATO
+
+-------------------------------------------------
+Migliori parametri per Decision Tree Classifier:
+  Criterion: gini
+  Max Depth: 40
+  Min Samples Split: 10
+  Min Samples Leaf: 20
+
+Migliori parametri per Random Forest Classifier:
+  Criterion: entropy
+  N Estimators: 100
+  Max Depth: 20
+  Min Samples Split: 2
+  Min Samples Leaf: 2
+
+Migliori parametri per Logistic Regression:
+  Penalty: l2
+  C: 1
+  Solver: newton-cg
+-------------------------------------------------
+Random Forest Classifier:
+  Accuracy: 0.7503
+  F1 Score: 0.7402
+  Precision: 0.7360
+  Recall: 0.7503
+  Balanced Accuracy: 0.6681
+-------------------------------------------------
+Random Forest Classifier:
+  Accuracy: 0.7729
+  F1 Score: 0.7565
+  Precision: 0.7562
+  Recall: 0.7729
+  Balanced Accuracy: 0.6782
+-------------------------------------------------
+Logistic Regression:
+  Accuracy: 0.7616
+  F1 Score: 0.7460
+  Precision: 0.7420
+  Recall: 0.7616
+  Balanced Accuracy: 0.6674
+-------------------------------------------------
+CICLO COMPLETATO
+

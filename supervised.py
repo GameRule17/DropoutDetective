@@ -1,9 +1,9 @@
 # Import librerie utilizzate
 import pandas as pd
-import plotly.express as px
+# import plotly.express as px
 import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
+# import seaborn as sns
+# import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, balanced_accuracy_score
 
@@ -13,10 +13,10 @@ from sklearn.linear_model import LogisticRegression
 # from sklearn.neighbors import KNeighborsClassifier
 # from sklearn.ensemble import AdaBoostClassifier
 # from xgboost import XGBClassifier
-from sklearn import svm
+# from sklearn import svm
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, RepeatedStratifiedKFold
-from sklearn.ensemble import VotingClassifier
+# from sklearn.ensemble import VotingClassifier
 from sklearn.pipeline import Pipeline
 
 # Definizione della funzione sturgeRule
@@ -24,7 +24,7 @@ def sturgeRule(n):
     return int(1 + 3.322 * np.log10(n))
 
 def return_best_hyperparameters(dataset, target):
-    # Cross Validation Strategy (Repeated Stratified K-Fold) with 5 splits and 2 repeats and a random state of 42 for reproducibility
+    # Cross Validation Strategy (Repeated Stratified K-Fold) with 12 splits and 2 repeats and a random state of 42 for reproducibility
     X = dataset.drop(target, axis=1)
     y = dataset[target]
 
@@ -34,7 +34,7 @@ def return_best_hyperparameters(dataset, target):
     )
 
     CV = RepeatedStratifiedKFold(n_splits=sturgeRule(X_train.shape[0]), n_repeats=2, random_state=42)
-
+    
     # Models Evaluated
     dtc = DecisionTreeClassifier()
     rfc = RandomForestClassifier()
@@ -266,5 +266,6 @@ def supervised(data, target):
     random_forest_classifier(X_train, y_train, X_test, y_test, bestParameters)
     logistic_regression(X_train, y_train, X_test, y_test, bestParameters)
 
+    save_results_on_file("CICLO COMPLETATO\n")
     print("Risultati salvati su file.")
 
