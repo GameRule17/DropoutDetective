@@ -38,47 +38,95 @@ Logistic Regression:
   Recall: 0.7582
   Balanced Accuracy: 0.6643
 -------------------------------------------------
-CICLO COMPLETATO
+CICLO COMPLETATO - Esperimento 1
+
 
 -------------------------------------------------
 Migliori parametri per Decision Tree Classifier:
   Criterion: gini
-  Max Depth: 40
-  Min Samples Split: 10
+  Max Depth: 10
+  Min Samples Split: 20
   Min Samples Leaf: 20
 
 Migliori parametri per Random Forest Classifier:
-  Criterion: entropy
-  N Estimators: 100
+  Criterion: gini
+  N Estimators: 200
   Max Depth: 20
-  Min Samples Split: 2
+  Min Samples Split: 5
   Min Samples Leaf: 2
 
 Migliori parametri per Logistic Regression:
   Penalty: l2
-  C: 1
+  C: 10
   Solver: newton-cg
 -------------------------------------------------
-Random Forest Classifier:
-  Accuracy: 0.7503
-  F1 Score: 0.7402
-  Precision: 0.7360
-  Recall: 0.7503
-  Balanced Accuracy: 0.6681
+Metric: accuracy
+DecisionTree: 0.7470570799457995
+RandomForest: 0.7677431291975964
+LogisticRegression: 0.7623215407878717
 -------------------------------------------------
-Random Forest Classifier:
-  Accuracy: 0.7729
-  F1 Score: 0.7565
-  Precision: 0.7562
-  Recall: 0.7729
-  Balanced Accuracy: 0.6782
+Metric: make_scorer(f1_score, response_method='predict', average=weighted)
+DecisionTree: 0.7348567959699187
+RandomForest: 0.7501186428712469
+LogisticRegression: 0.7428963908634124
 -------------------------------------------------
-Logistic Regression:
-  Accuracy: 0.7616
-  F1 Score: 0.7460
-  Precision: 0.7420
-  Recall: 0.7616
-  Balanced Accuracy: 0.6674
+Metric: make_scorer(precision_score, response_method='predict', average=weighted)
+DecisionTree: 0.7308089149320519
+RandomForest: 0.7506671093220986
+LogisticRegression: 0.7426121154637633
 -------------------------------------------------
-CICLO COMPLETATO
+Metric: make_scorer(recall_score, response_method='predict', average=weighted)
+DecisionTree: 0.7471703045834807
+RandomForest: 0.7677431291975964
+LogisticRegression: 0.7623215407878717
+-------------------------------------------------
+Metric: balanced_accuracy
+DecisionTree: 0.6593106146644349
+RandomForest: 0.671716613233262
+LogisticRegression: 0.6617907650793319
 
+ESPERIMENTO FEATURE ENGINEERING COMPLETATO
+
+-------------------------------------------------
+Migliori parametri per Decision Tree Classifier:
+  Criterion: gini
+  Max Depth: 10
+  Min Samples Split: 2
+  Min Samples Leaf: 20
+
+Migliori parametri per Random Forest Classifier:
+  Criterion: entropy
+  N Estimators: 200
+  Max Depth: 20
+  Min Samples Split: 5
+  Min Samples Leaf: 2
+
+Migliori parametri per Logistic Regression:
+  Penalty: l2
+  C: 10
+  Solver: newton-cg
+-------------------------------------------------
+Metric: accuracy
+DecisionTree: 0.7409828417241048
+RandomForest: 0.8199791049698177
+LogisticRegression: 0.7240866409396266
+-------------------------------------------------
+Metric: make_scorer(f1_score, response_method='predict', average=weighted)
+DecisionTree: 0.7422496947220432
+RandomForest: 0.8200590737212371
+LogisticRegression: 0.7240229425266757
+-------------------------------------------------
+Metric: make_scorer(precision_score, response_method='predict', average=weighted)
+DecisionTree: 0.7449767443422944
+RandomForest: 0.8222565478005986
+LogisticRegression: 0.7273722849925238
+-------------------------------------------------
+Metric: make_scorer(recall_score, response_method='predict', average=weighted)
+DecisionTree: 0.7411339444051331
+RandomForest: 0.8199791049698177
+LogisticRegression: 0.7240866409396266
+-------------------------------------------------
+Metric: balanced_accuracy
+DecisionTree: 0.7414385853244548
+RandomForest: 0.8199744581538061
+LogisticRegression: 0.7240917547982765

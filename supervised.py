@@ -1,27 +1,21 @@
 # Import librerie utilizzate
 import pandas as pd
-# import plotly.express as px
 import numpy as np
-# import seaborn as sns
-# import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, balanced_accuracy_score
+from sklearn.model_selection import train_test_split, learning_curve
+from sklearn.metrics import make_scorer, accuracy_score, f1_score, precision_score, recall_score, balanced_accuracy_score
 
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
-# from sklearn.neighbors import KNeighborsClassifier
-# from sklearn.ensemble import AdaBoostClassifier
-# from xgboost import XGBClassifier
-# from sklearn import svm
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, RepeatedStratifiedKFold
-# from sklearn.ensemble import VotingClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.model_selection import cross_val_score
 
-# Definizione della funzione sturgeRule
-def sturgeRule(n):
-    return int(1 + 3.322 * np.log10(n))
+from imblearn.over_sampling import SMOTE
+
+# Import delle funzioni da me definite
+from plotting import *
 
 def return_best_hyperparameters(dataset, target):
     # Cross Validation Strategy (Repeated Stratified K-Fold) with 12 splits and 2 repeats and a random state of 42 for reproducibility
@@ -130,6 +124,9 @@ def return_best_hyperparameters(dataset, target):
             "LogisticRegression__solver"
         ],
     }
+
+    save_best_hyperparameters(bestParameters)
+
     return bestParameters, X_train, y_train, X_test, y_test
 
 def save_best_hyperparameters(bestParameters):
@@ -155,101 +152,78 @@ def save_best_hyperparameters(bestParameters):
     # Salva il testo su file
     save_results_on_file(text)
 
-def decision_tree_classifier(X_train, y_train, X_test, y_test, bestParameters):
-    # Decision Tree Classifier
+def train_model_k_fold(dataset, target, methodName, smote=False):
+    bestParameters, X_train, y_train, X_test, y_test = return_best_hyperparameters(dataset, target)
+
+    X = dataset.drop(target, axis=1).to_numpy()
+    y = dataset[target].to_numpy()
+
+    if smote:
+        X, y = apply_smote(dataset, target)
+
     dtc = DecisionTreeClassifier(
         criterion=bestParameters["DecisionTree__criterion"],
+        splitter="best",
         max_depth=bestParameters["DecisionTree__max_depth"],
         min_samples_split=bestParameters["DecisionTree__min_samples_split"],
         min_samples_leaf=bestParameters["DecisionTree__min_samples_leaf"],
-        random_state=42
     )
-
-    dtc.fit(X_train, y_train)
-    y_pred = dtc.predict(X_test)
-
-    accuracy = accuracy_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred, average="weighted")
-    precision = precision_score(y_test, y_pred, average="weighted")
-    recall = recall_score(y_test, y_pred, average="weighted")
-    dtc_accuracy = balanced_accuracy_score(y_test, y_pred)
-
-    # Prepara il testo da salvare
-    text = "\n".join([
-        "Random Forest Classifier:",
-        f"  Accuracy: {accuracy:.4f}",
-        f"  F1 Score: {f1:.4f}",
-        f"  Precision: {precision:.4f}",
-        f"  Recall: {recall:.4f}",
-        f"  Balanced Accuracy: {dtc_accuracy:.4f}"
-    ])
-
-    # Salva il testo su file
-    save_results_on_file(text)
-
-def random_forest_classifier(X_train, y_train, X_test, y_test, bestParameters):
-    # Random Forest Classifier
     rfc = RandomForestClassifier(
-        criterion=bestParameters["RandomForest__criterion"],
         n_estimators=bestParameters["RandomForest__n_estimators"],
         max_depth=bestParameters["RandomForest__max_depth"],
         min_samples_split=bestParameters["RandomForest__min_samples_split"],
         min_samples_leaf=bestParameters["RandomForest__min_samples_leaf"],
-        random_state=42
+        criterion=bestParameters["RandomForest__criterion"],
+        n_jobs=-1,
+        random_state=42,
     )
-
-    rfc.fit(X_train, y_train)
-    y_pred = rfc.predict(X_test)
-
-    accuracy = accuracy_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred, average="weighted")
-    precision = precision_score(y_test, y_pred, average="weighted")
-    recall = recall_score(y_test, y_pred, average="weighted")
-    rfc_accuracy = balanced_accuracy_score(y_test, y_pred)
-
-    # Prepara il testo da salvare
-    text = "\n".join([
-        "Random Forest Classifier:",
-        f"  Accuracy: {accuracy:.4f}",
-        f"  F1 Score: {f1:.4f}",
-        f"  Precision: {precision:.4f}",
-        f"  Recall: {recall:.4f}",
-        f"  Balanced Accuracy: {rfc_accuracy:.4f}"
-    ])
-
-    # Salva il testo su file
-    save_results_on_file(text)
-
-def logistic_regression(X_train, y_train, X_test, y_test, bestParameters):
-    # Logistic Regression
     lr = LogisticRegression(
         penalty=bestParameters["LogisticRegression__penalty"],
         C=bestParameters["LogisticRegression__C"],
         solver=bestParameters["LogisticRegression__solver"],
-        random_state=42
+        random_state=42,
     )
 
-    lr.fit(X_train, y_train)
-    y_pred = lr.predict(X_test)
+    cv = RepeatedStratifiedKFold(n_splits=sturgeRule(X_train.shape[0]), n_repeats=2, random_state=42)
 
-    accuracy = accuracy_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred, average="weighted")
-    precision = precision_score(y_test, y_pred, average="weighted")
-    recall = recall_score(y_test, y_pred, average="weighted")
-    lr_accuracy = balanced_accuracy_score(y_test, y_pred)
+    f1_scorer = make_scorer(f1_score, average="weighted")
+    precision_scorer = make_scorer(precision_score, average="weighted")
+    recall_scorer = make_scorer(recall_score, average="weighted")
 
-    # Prepara il testo da salvare
-    text = "\n".join([
-        "Logistic Regression:",
-        f"  Accuracy: {accuracy:.4f}",
-        f"  F1 Score: {f1:.4f}",
-        f"  Precision: {precision:.4f}",
-        f"  Recall: {recall:.4f}",
-        f"  Balanced Accuracy: {lr_accuracy:.4f}"
-    ])
+    scoring_metrics = ["accuracy",f1_scorer,precision_scorer,recall_scorer,"balanced_accuracy"]
 
-    # Salva il testo su file
-    save_results_on_file(text)
+    for metric in scoring_metrics:
+        # Cross Validation for each model with the scoring metric and the cross validation strategy
+        scores_dtc = cross_val_score(
+            dtc, X, y, scoring=metric, cv=cv, n_jobs=-1,
+        )
+        scores_rfc = cross_val_score(
+            rfc, X, y, scoring=metric, cv=cv, n_jobs=-1
+        )
+        scores_lr = cross_val_score(
+            lr, X, y, scoring=metric, cv=cv, n_jobs=-1
+        )
+
+        print("\033[94m")
+        print(f"Metric: {metric}")
+        print(f"DecisionTree: {scores_dtc.mean()}")
+        print(f"RandomForest: {scores_rfc.mean()}")
+        print(f"LogisticRegression: {scores_lr.mean()}")
+        print("\033[0m")
+
+        text = "\n".join([
+        f"Metric: {metric}",
+        f"DecisionTree: {scores_dtc.mean()}",
+        f"RandomForest: {scores_rfc.mean()}",
+        f"LogisticRegression: {scores_lr.mean()}",
+        ])
+
+        save_results_on_file(text)
+
+    # Plotting the learning curves for each model
+    plot_learning_curves(rfc, X, y, target, "RandomForest", methodName, cv)
+    plot_learning_curves(dtc, X, y, target, "DecisionTree", methodName, cv)
+    plot_learning_curves(lr, X, y, target, "LogisticRegression", methodName, cv)
 
 def save_results_on_file(text):
     with open("results.txt", "a") as file:
@@ -257,15 +231,12 @@ def save_results_on_file(text):
         file.write(text + "\n")
         file.close()
 
-def supervised(data, target):
-    bestParameters, X_train, y_train, X_test, y_test = return_best_hyperparameters(data, target)
-    
-    save_best_hyperparameters(bestParameters)
+# Applica la tecnica SMOTE per il bilanciamento delle classi
+def apply_smote(dataset, target):
+    X = dataset.drop(target, axis=1)
+    y = dataset[target]
 
-    decision_tree_classifier(X_train, y_train, X_test, y_test, bestParameters)
-    random_forest_classifier(X_train, y_train, X_test, y_test, bestParameters)
-    logistic_regression(X_train, y_train, X_test, y_test, bestParameters)
+    smote = SMOTE(sampling_strategy='all', random_state=42)
+    X_smote, y_smote = smote.fit_resample(X, y)
 
-    save_results_on_file("CICLO COMPLETATO\n")
-    print("Risultati salvati su file.")
-
+    return X_smote, y_smote

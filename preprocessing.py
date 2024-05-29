@@ -43,8 +43,13 @@ def drop_colums_with_low_correlation(data):
                         'Educational special needs', 
                         'International', 
                         'Curricular units 1st sem (without evaluations)',
+                        'Curricular units 1st sem (credited)',
                         'Unemployment rate', 
-                        'Inflation rate'], axis=1, inplace=True)
+                        'Inflation rate',
+                        'Course',
+                        'Mother occupation', 
+                        'Father occupation',
+                        'GDP'], axis=1, inplace=True)
 
 def drop_colums_after_kb_feature_engineering(data):
     data.drop(columns=['Curricular units 1st sem (approved)', 
