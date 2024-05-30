@@ -1,3 +1,4 @@
+from sklearn.preprocessing import KBinsDiscretizer
 
 def initial_preprocessing(data):
     # Visualizzazione delle prime righe del dataset
@@ -67,3 +68,20 @@ def after_kb_feature_engineering_preprocessing(data):
 def merge_target_feature(data):
     # Nuova feature target binaria, unendo gli stati Enrolled e Graduate nella categoria No Dropout.
     data['Target'] = data['Target'].map(lambda x: 1 if x == 0 else 0)
+
+def discretize_dataset(data):
+    #discretizzo il dataset
+    discretizer = KBinsDiscretizer(encode='ordinal', strategy='uniform')
+    continuos_columns = data.select_dtypes(include=['float64', 'int64']).columns
+    data[continuos_columns] = discretizer.fit_transform(data[continuos_columns])
+
+def simplify_dataset_for_bayesian_network(data):
+    data.drop(columns=['Displaced',
+                        'Curricular units 2nd sem (evaluations)', 
+                        'Application order', 
+                        'Daytime/evening attendance', 
+                        'Curricular units 2nd sem (credited)',
+                        'Marital status',
+                        'Previous qualification',
+                        'Curricular units 2nd sem (without evaluations)',
+                        ], axis=1, inplace=True)

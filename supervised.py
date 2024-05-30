@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split, learning_curve
 from sklearn.metrics import make_scorer, accuracy_score, f1_score, precision_score, recall_score, balanced_accuracy_score
 
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.linear_model import LogisticRegression
 
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, RepeatedStratifiedKFold
@@ -167,6 +167,7 @@ def train_model_k_fold(dataset, target, methodName, smote=False):
         max_depth=bestParameters["DecisionTree__max_depth"],
         min_samples_split=bestParameters["DecisionTree__min_samples_split"],
         min_samples_leaf=bestParameters["DecisionTree__min_samples_leaf"],
+        random_state=42,
     )
     rfc = RandomForestClassifier(
         n_estimators=bestParameters["RandomForest__n_estimators"],
@@ -240,3 +241,73 @@ def apply_smote(dataset, target):
     X_smote, y_smote = smote.fit_resample(X, y)
 
     return X_smote, y_smote
+
+# Implementa Ensemble Model con VotingClassifier 
+def ensemble_model(dataset, target, methodName, smote=False):
+    bestParameters, X_train, y_train, X_test, y_test = return_best_hyperparameters(dataset, target)
+
+    X = dataset.drop(target, axis=1).to_numpy()
+    y = dataset[target].to_numpy()
+
+    if smote:
+        X, y = apply_smote(dataset, target)
+
+    dtc = DecisionTreeClassifier(
+        criterion=bestParameters["DecisionTree__criterion"],
+        splitter="best",
+        max_depth=bestParameters["DecisionTree__max_depth"],
+        min_samples_split=bestParameters["DecisionTree__min_samples_split"],
+        min_samples_leaf=bestParameters["DecisionTree__min_samples_leaf"],
+        random_state=42,
+    )
+    rfc = RandomForestClassifier(
+        n_estimators=bestParameters["RandomForest__n_estimators"],
+        max_depth=bestParameters["RandomForest__max_depth"],
+        min_samples_split=bestParameters["RandomForest__min_samples_split"],
+        min_samples_leaf=bestParameters["RandomForest__min_samples_leaf"],
+        criterion=bestParameters["RandomForest__criterion"],
+        n_jobs=-1,
+        random_state=42,
+    )
+    lr = LogisticRegression(
+        penalty=bestParameters["LogisticRegression__penalty"],
+        C=bestParameters["LogisticRegression__C"],
+        solver=bestParameters["LogisticRegression__solver"],
+        random_state=42,
+    )
+
+    ensemble = VotingClassifier(
+        estimators=[('dtc', dtc), ('rfc', rfc), ('lr', lr)],
+        voting='soft',
+        n_jobs=-1
+    )
+
+    cv = RepeatedStratifiedKFold(n_splits=sturgeRule(X_train.shape[0]), n_repeats=2, random_state=42)
+
+    f1_scorer = make_scorer(f1_score, average="weighted")
+    precision_scorer = make_scorer(precision_score, average="weighted")
+    recall_scorer = make_scorer(recall_score, average="weighted")
+
+    scoring_metrics = ["accuracy",f1_scorer,precision_scorer,recall_scorer,"balanced_accuracy"]
+
+    for metric in scoring_metrics:
+        # Cross Validation for each model with the scoring metric and the cross validation strategy
+        scores_ensemble = cross_val_score(
+            ensemble, X, y, scoring=metric, cv=cv, n_jobs=-1,
+        )
+
+        print("\033[94m")
+        print(f"Metric: {metric}")
+        print(f"Ensemble: {scores_ensemble.mean()}")
+        print("\033[0m")
+
+        text = "\n".join([
+        f"Metric: {metric}",
+        f"Ensemble: {scores_ensemble.mean()}",
+        ])
+
+        save_results_on_file(text)
+
+    # Plotting the learning curves for each model
+    plot_learning_curves(ensemble, X, y, target, "Ensemble", methodName, cv)
+

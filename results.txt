@@ -179,3 +179,39 @@ LogisticRegression: 0.8548180610889773
 
 ESPERIMENTO SMOTE + BINARY COMPLETATO
 
+-------------------------------------------------
+Migliori parametri per Decision Tree Classifier:
+  Criterion: gini
+  Max Depth: 5
+  Min Samples Split: 2
+  Min Samples Leaf: 20
+
+Migliori parametri per Random Forest Classifier:
+  Criterion: log_loss
+  N Estimators: 100
+  Max Depth: 20
+  Min Samples Split: 5
+  Min Samples Leaf: 2
+
+Migliori parametri per Logistic Regression:
+  Penalty: l1
+  C: 10
+  Solver: liblinear
+-------------------------------------------------
+Metric: accuracy
+Ensemble: 0.8655507318695942
+-------------------------------------------------
+Metric: make_scorer(f1_score, response_method='predict', average=weighted)
+Ensemble: 0.8653664201576339
+-------------------------------------------------
+Metric: make_scorer(precision_score, response_method='predict', average=weighted)
+Ensemble: 0.8676046650261622
+-------------------------------------------------
+Metric: make_scorer(recall_score, response_method='predict', average=weighted)
+Ensemble: 0.8655507318695942
+-------------------------------------------------
+Metric: balanced_accuracy
+Ensemble: 0.8655524568393096
+
+ESPERIMENTO VotingClassifier COMPLETATO
+
