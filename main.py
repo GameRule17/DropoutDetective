@@ -28,4 +28,8 @@ after_kb_feature_engineering_preprocessing(data)
 # train_model_k_fold(data, "Target", "Feature Engineering")
 
 # Supervised learning con SMOTE
-train_model_k_fold(data, "Target", "SMOTE", True)
+# train_model_k_fold(data, "Target", "SMOTE", True)
+
+merge_target_feature(data)
+# Supervised learning con SMOTE e nuova feature Target Binaria
+train_model_k_fold(data, "Target", "SMOTE + Binary", True)

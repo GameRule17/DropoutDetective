@@ -63,3 +63,7 @@ def drop_colums_after_kb_feature_engineering(data):
 def after_kb_feature_engineering_preprocessing(data):
     drop_colums_with_low_correlation(data)
     drop_colums_after_kb_feature_engineering(data)
+
+def merge_target_feature(data):
+    # Nuova feature target binaria, unendo gli stati Enrolled e Graduate nella categoria No Dropout.
+    data['Target'] = data['Target'].map(lambda x: 1 if x == 0 else 0)
