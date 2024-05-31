@@ -1,9 +1,6 @@
 from sklearn.preprocessing import KBinsDiscretizer
 
 def initial_preprocessing(data):
-    # Visualizzazione delle prime righe del dataset
-    # print(data.head())
-
     # Rinominazione di alcune colonne con nomi errati o troppo esplicativi
     data.rename(columns = {'Nacionality':'Nationality', 'Age at enrollment':'Age'}, inplace = True)
 
@@ -31,12 +28,11 @@ def initial_preprocessing(data):
     })
     # print(data["Target"].unique())
 
-    # Visualizza solo i nomi delle colonne
-    # print(data.columns)
-
+# Funzione che mostra la correlazione tra le feature e la feature target
 def show_feature_correlation(data):
     print(data.corr()['Target'].sort_values(ascending=False))
 
+# Funzione che rimuove le colonne con bassa correlazione rispetto alla feature target
 def drop_colums_with_low_correlation(data):
     data.drop(columns=['Nationality', 
                         'Mother qualification', 
@@ -52,6 +48,7 @@ def drop_colums_with_low_correlation(data):
                         'Father occupation',
                         'GDP'], axis=1, inplace=True)
 
+# Funzione che rimuove le colonne dopo il feature engineering con Knowledge Base
 def drop_colums_after_kb_feature_engineering(data):
     data.drop(columns=['Curricular units 1st sem (approved)', 
                         'Curricular units 2nd sem (approved)',
@@ -65,16 +62,18 @@ def after_kb_feature_engineering_preprocessing(data):
     drop_colums_with_low_correlation(data)
     drop_colums_after_kb_feature_engineering(data)
 
+# Funzione che effettua il merge della feature target in una nuova feature binaria
 def merge_target_feature(data):
     # Nuova feature target binaria, unendo gli stati Enrolled e Graduate nella categoria No Dropout.
     data['Target'] = data['Target'].map(lambda x: 1 if x == 0 else 0)
 
+# Funzione che discretizza il dataset
 def discretize_dataset(data):
-    #discretizzo il dataset
     discretizer = KBinsDiscretizer(encode='ordinal', strategy='uniform')
     continuos_columns = data.select_dtypes(include=['float64', 'int64']).columns
     data[continuos_columns] = discretizer.fit_transform(data[continuos_columns])
 
+# Funzione che semplifica il dataset per la creazione della rete bayesiana
 def simplify_dataset_for_bayesian_network(data):
     data.drop(columns=['Displaced',
                         'Curricular units 2nd sem (evaluations)', 

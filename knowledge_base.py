@@ -32,31 +32,26 @@ def facts_from_dataframe(data):
 def new_features_extraction(data):
     # Definizione di nuove feature usando regole Prolog
 
-    # Good Student: Approves at least 80% of the enrolled curricular units
-    # prolog.assertz("good_student(ID) :- student(ID, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, Enrolled, _, _, _, Approved, _, _, _, _, _, _, _, _, _, _), (Enrolled > 0, Approved >= (0.8 * Enrolled))")
-
-    # Financially Stable: Is not a debtor and tuition fees are up to date
+    # Financially Stable: studente che non è un debitore ed è in regola con il pagamento delle tasse
     prolog.assertz("financially_stable(ID) :- student(ID, _, _, _, _, _, _, _, _, _, _, _, _, _, Debtor, FeesUpToDate, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _), (Debtor =:= 0, FeesUpToDate =:= 1)")
 
-    # Interaction features for academic performance                                                                                              #24                           #30
+    # Interaction features per performance accademiche                                                                                              #24                           #30
     prolog.assertz("interaction_cu_1st_2nd_approved(ID, Result) :- student(ID, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, CU1stApproved, _, _, _, _, _, CU2ndApproved, _, _, _, _, _), Result is CU1stApproved * CU2ndApproved")
                                                                                                                                                  #25                        #31
     prolog.assertz("interaction_cu_1st_2nd_grade(ID, Result) :- student(ID, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, CU1stGrade, _, _, _, _, _, CU2ndGrade, _, _, _, _), Result is CU1stGrade * CU2ndGrade")
 
-    # Aggregated features
+    # Feature Aggregate per performance accademiche
     prolog.assertz("total_cu_approved(ID, Result) :- student(ID, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, CU1stApproved, _, _, _, _, _, CU2ndApproved, _, _, _, _, _), Result is CU1stApproved + CU2ndApproved")
     prolog.assertz("total_cu_grade(ID, Result) :- student(ID, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, CU1stGrade, _, _, _, _, _, CU2ndGrade, _, _, _, _), Result is (CU1stGrade + CU2ndGrade) / 2")
 
     # Esecuzione query per ottenere i nuovi attributi per ogni studente
-    # good_students = list(prolog.query("good_student(ID)"))
     financially_stable_students = list(prolog.query("financially_stable(ID)"))
     interaction_cu_1st_2nd_approved = list(prolog.query("interaction_cu_1st_2nd_approved(ID, Result)"))
     interaction_cu_1st_2nd_grade = list(prolog.query("interaction_cu_1st_2nd_grade(ID, Result)"))
     total_cu_approved = list(prolog.query("total_cu_approved(ID, Result)"))
     total_cu_grade = list(prolog.query("total_cu_grade(ID, Result)"))
 
-    # Conversione dei risultati delle query in un formato più utile
-    # good_students_ids = [student['ID'] for student in good_students]
+    # Conversione dei risultati delle query
     financially_stable_students_ids = [student['ID'] for student in financially_stable_students]
     interaction_cu_1st_2nd_approved_dict = {res['ID']: res['Result'] for res in interaction_cu_1st_2nd_approved}
     interaction_cu_1st_2nd_grade_dict = {res['ID']: res['Result'] for res in interaction_cu_1st_2nd_grade}
@@ -64,7 +59,6 @@ def new_features_extraction(data):
     total_cu_grade_dict = {res['ID']: res['Result'] for res in total_cu_grade}
 
     # Inserimento delle nuove feature nel dataframe
-    # data['Good Student'] = data.index.isin(good_students_ids).astype(int)
     data['Financially Stable'] = data.index.isin(financially_stable_students_ids).astype(int)
     data['Interaction_CU_1st_2nd_Approved'] = data.index.map(interaction_cu_1st_2nd_approved_dict)
     data['Interaction_CU_1st_2nd_Grade'] = data.index.map(interaction_cu_1st_2nd_grade_dict)

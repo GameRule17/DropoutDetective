@@ -18,23 +18,24 @@ from imblearn.over_sampling import SMOTE
 from plotting import *
 
 def return_best_hyperparameters(dataset, target):
-    # Cross Validation Strategy (Repeated Stratified K-Fold) with 12 splits and 2 repeats and a random state of 42 for reproducibility
+    # Strategia di Cross-Validation (Repeated Stratified K-Fold) con 12 splits e 2 ripetizioni
+    # Random state di 42 per la riproducibilità
     X = dataset.drop(target, axis=1)
     y = dataset[target]
 
-    # Splitting the dataset into the Training set and Test set (80% training, 20% testing) with stratification and shuffling
+    # Splitting dataset in Training set e Test set (80% training, 20% testing) con stratificazione e shuffling
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=.2, stratify=y, random_state=42
     )
 
     CV = RepeatedStratifiedKFold(n_splits=sturgeRule(X_train.shape[0]), n_repeats=2, random_state=42)
     
-    # Models Evaluated
+    # Modelli da utilizzare
     dtc = DecisionTreeClassifier()
     rfc = RandomForestClassifier()
     lr = LogisticRegression()
 
-    # Hyperparameters for each model
+    # Iperparametri per ogni modello
     DecisionTreeHyperparameters = {
         "DecisionTree__criterion": ["gini", "entropy", "log_loss"],
         "DecisionTree__max_depth": [5, 10, 20, 40],
@@ -55,7 +56,7 @@ def return_best_hyperparameters(dataset, target):
         "LogisticRegression__solver": ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
     }
 
-    # GridSearchCV for each model with the respective hyperparameters
+    # GridSearchCV su ogni modello per trovare i migliori iperparametri
     gridSearchCV_dtc = GridSearchCV(
         Pipeline([("DecisionTree", dtc)]),
         DecisionTreeHyperparameters,
@@ -80,12 +81,12 @@ def return_best_hyperparameters(dataset, target):
         scoring="balanced_accuracy",
     )
 
-    # Fitting the models with the training data
+    # Fitting dei modelli
     gridSearchCV_dtc.fit(X_train, y_train)
     gridSearchCV_rfc.fit(X_train, y_train)
     gridSearchCV_lr.fit(X_train, y_train)
 
-    # Returning the best hyperparameters for each model
+    # Salvataggio dei migliori iperparametri
     bestParameters = {
         "DecisionTree__criterion": gridSearchCV_dtc.best_params_[
             "DecisionTree__criterion"
@@ -158,6 +159,7 @@ def train_model_k_fold(dataset, target, methodName, smote=False):
     X = dataset.drop(target, axis=1).to_numpy()
     y = dataset[target].to_numpy()
 
+    # Applica SMOTE se richiesto nella chiamata
     if smote:
         X, y = apply_smote(dataset, target)
 
@@ -187,6 +189,7 @@ def train_model_k_fold(dataset, target, methodName, smote=False):
 
     cv = RepeatedStratifiedKFold(n_splits=sturgeRule(X_train.shape[0]), n_repeats=2, random_state=42)
 
+    # Creazione degli score
     f1_scorer = make_scorer(f1_score, average="weighted")
     precision_scorer = make_scorer(precision_score, average="weighted")
     recall_scorer = make_scorer(recall_score, average="weighted")
@@ -194,7 +197,8 @@ def train_model_k_fold(dataset, target, methodName, smote=False):
     scoring_metrics = ["accuracy",f1_scorer,precision_scorer,recall_scorer,"balanced_accuracy"]
 
     for metric in scoring_metrics:
-        # Cross Validation for each model with the scoring metric and the cross validation strategy
+        # Cross Validation per ogni modello con la metrica di scoring e la strategia di cross validation
+        # n_jobs=-1 per sfruttare tutti i core della CPU
         scores_dtc = cross_val_score(
             dtc, X, y, scoring=metric, cv=cv, n_jobs=-1,
         )
@@ -221,7 +225,7 @@ def train_model_k_fold(dataset, target, methodName, smote=False):
 
         save_results_on_file(text)
 
-    # Plotting the learning curves for each model
+    # Plotting curve di apprendimento per ogni modello
     plot_learning_curves(rfc, X, y, target, "RandomForest", methodName, cv)
     plot_learning_curves(dtc, X, y, target, "DecisionTree", methodName, cv)
     plot_learning_curves(lr, X, y, target, "LogisticRegression", methodName, cv)
@@ -232,7 +236,7 @@ def save_results_on_file(text):
         file.write(text + "\n")
         file.close()
 
-# Applica la tecnica SMOTE per il bilanciamento delle classi
+# Applicazione della tecnica SMOTE per il bilanciamento delle classi
 def apply_smote(dataset, target):
     X = dataset.drop(target, axis=1)
     y = dataset[target]
@@ -242,7 +246,7 @@ def apply_smote(dataset, target):
 
     return X_smote, y_smote
 
-# Implementa Ensemble Model con VotingClassifier 
+# Implementazione di Ensemble Model con VotingClassifier 
 def ensemble_model(dataset, target, methodName, smote=False):
     bestParameters, X_train, y_train, X_test, y_test = return_best_hyperparameters(dataset, target)
 
@@ -308,6 +312,6 @@ def ensemble_model(dataset, target, methodName, smote=False):
 
         save_results_on_file(text)
 
-    # Plotting the learning curves for each model
+    # Plotting delle curve di apprendimento per il modello Ensemble
     plot_learning_curves(ensemble, X, y, target, "Ensemble", methodName, cv)
 

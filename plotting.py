@@ -38,12 +38,11 @@ def plot_learning_curves(model, X, y, differentialColumn, model_name, method_nam
     plt.plot(train_sizes, mean_train_errors, label='Errore di training', color='green')
     plt.plot(train_sizes, mean_test_errors, label='Errore di testing', color='red')
     plt.title(f'Curva di apprendimento per {model_name} con {method_name}')
-    # plt.ylim(0, 1)
     plt.xlabel('Dimensione del training set')
     plt.ylabel('Errore')
     plt.legend()
 
-    # save plot to file
+    # Salva la curva di apprendimento su file
     plt.savefig(f'plots/learning_curve_{model_name}_{method_name}.png')
 
     plt.show()
