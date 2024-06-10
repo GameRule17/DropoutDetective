@@ -14,6 +14,8 @@ from sklearn.model_selection import cross_val_score
 
 from imblearn.over_sampling import SMOTE
 
+from sklearn.neural_network import MLPClassifier
+
 # Import delle funzioni da me definite
 from plotting import *
 
@@ -246,15 +248,51 @@ def apply_smote(dataset, target):
 
     return X_smote, y_smote
 
-# Implementazione di Ensemble Model con VotingClassifier 
-def ensemble_model(dataset, target, methodName, smote=False):
-    bestParameters, X_train, y_train, X_test, y_test = return_best_hyperparameters(dataset, target)
+# Tuning iperparametri della rete neurale
+def tune_neural_network_hyperparameters(X, y):
+    hyperparameters = {
+        'hidden_layer_sizes': [(10,10,10), (20,50,20), (50,)],
+        'activation': ['tanh', 'relu'],
+        'solver': ['sgd', 'adam'],
+        'alpha': [0.0001, 0.01],
+        'learning_rate': ['constant','adaptive'],
+    }
 
+    # MLPClassifier
+    nn = MLPClassifier(max_iter=100)
+
+    # GridSearchCV
+    grid = GridSearchCV(nn, hyperparameters, cv=5, scoring='balanced_accuracy', n_jobs=-1)
+
+    grid.fit(X, y)
+
+    best_parameters = grid.best_params_
+
+    # Salvataggio dei migliori iperparametri su file
+    text = "\n".join([
+        "Migliori parametri per Neural Network:",
+        f"  Hidden Layer Sizes: {best_parameters['hidden_layer_sizes']}",
+        f"  Activation: {best_parameters['activation']}",
+        f"  Solver: {best_parameters['solver']}",
+        f"  Alpha: {best_parameters['alpha']}",
+        f"  Learning Rate: {best_parameters['learning_rate']}"
+    ])
+
+    save_results_on_file(text)
+
+    return best_parameters
+
+# Implementazione di Ensemble Model con VotingClassifier 
+    # Includendo anche la rete neurale MLP e rimuovendo il Random Forest 
+def ensemble_model(dataset, target, methodName, smote=False):
     X = dataset.drop(target, axis=1).to_numpy()
     y = dataset[target].to_numpy()
 
     if smote:
         X, y = apply_smote(dataset, target)
+
+    bestParameters, X_train, y_train, X_test, y_test = return_best_hyperparameters(dataset, target)
+    bestParameters_nn = tune_neural_network_hyperparameters(X, y)
 
     dtc = DecisionTreeClassifier(
         criterion=bestParameters["DecisionTree__criterion"],
@@ -264,13 +302,13 @@ def ensemble_model(dataset, target, methodName, smote=False):
         min_samples_leaf=bestParameters["DecisionTree__min_samples_leaf"],
         random_state=42,
     )
-    rfc = RandomForestClassifier(
-        n_estimators=bestParameters["RandomForest__n_estimators"],
-        max_depth=bestParameters["RandomForest__max_depth"],
-        min_samples_split=bestParameters["RandomForest__min_samples_split"],
-        min_samples_leaf=bestParameters["RandomForest__min_samples_leaf"],
-        criterion=bestParameters["RandomForest__criterion"],
-        n_jobs=-1,
+    nn = MLPClassifier(
+        hidden_layer_sizes=bestParameters_nn["hidden_layer_sizes"],
+        activation=bestParameters_nn["activation"],
+        solver=bestParameters_nn["solver"],
+        alpha=bestParameters_nn["alpha"],
+        learning_rate=bestParameters_nn["learning_rate"],
+        max_iter=100,
         random_state=42,
     )
     lr = LogisticRegression(
@@ -281,7 +319,7 @@ def ensemble_model(dataset, target, methodName, smote=False):
     )
 
     ensemble = VotingClassifier(
-        estimators=[('dtc', dtc), ('rfc', rfc), ('lr', lr)],
+        estimators=[('dtc', dtc), ('nn', nn), ('lr', lr)],
         voting='soft',
         n_jobs=-1
     )

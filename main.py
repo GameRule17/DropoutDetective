@@ -45,8 +45,8 @@ train_model_k_fold(data, "Target", "SMOTE + Binary", True)
 
 ######################################################################
 
-# Supervised learning con SMOTE + Binary ma con VotingClassifier
-ensemble_model(data, "Target", "SMOTE + Binary", True)
+# Supervised learning con Binary & NO SMOTE ma con VotingClassifier
+ensemble_model(data, "Target", "Binary + MLP, SMOTE Off", False)
 
 ######################################################################
 
